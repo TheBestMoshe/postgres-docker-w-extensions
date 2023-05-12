@@ -7,7 +7,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PG_MAJOR: 14
 
 jobs:
   build-and-push-image:
@@ -15,7 +14,10 @@ jobs:
     permissions:
       contents: read
       packages: write
-
+    strategy:
+      matrix:
+        pg_major: [14, 15]
+        pgvector: [v0.4.1, v0.4.0, v0.3.2]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -34,7 +36,9 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha
-            type=raw,prefix=pg,value=${{ env.PG_MAJOR }}
+            type=raw,prefix=pg,value=${{ matrix.pg_major }}
+            type=raw,prefix=pgvector,value=${{ matrix.pgvector}}
+            type=raw,value=pg-${{matrix.pg_major}}-pgvector-${{ matrix.pgvector}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
@@ -44,4 +48,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-           PG_MAJOR=${{ env.PG_MAJOR }}
+           PG_MAJOR=${{ matrix.pg_major }}
+           PG_VECTOR=${{ matrix.pgvector}}
