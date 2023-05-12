@@ -36,8 +36,8 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha
-            type=raw,prefix=pg,value=${{ matrix.pg_major }}
-            type=raw,prefix=pgvector,value=${{ matrix.pgvector}}
+            type=raw,value=pg-${{ matrix.pg_major }}
+            type=raw,value=pgvector-${{ matrix.pgvector}}
             type=raw,value=pg-${{matrix.pg_major}}-pgvector-${{ matrix.pgvector}}
 
       - name: Build and push Docker image
